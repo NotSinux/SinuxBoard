@@ -6,34 +6,34 @@ clipboard item whenever Windows or the app starts.
 
 ## Features
 
-- Runs entirely in the system tray — no window on startup, no console.
+- Runs entirely in the system tray — no window on startup and no console.
 - Watches the clipboard using the native `AddClipboardFormatListener` /
   `WM_CLIPBOARDUPDATE` mechanism (no polling).
 - Stores clipboard text history locally in a SQLite database.
 - Restores your most recent clipboard item automatically on startup.
-- Prevents duplicate consecutive entries (including its own restores).
+- Prevents duplicate consecutive entries, including its own restores.
 - Browse history in a simple window; double-click any item to restore it.
 - Export the full history to a JSON file, and import it back later.
 - Optional automatic startup with Windows (per-user, no admin required).
 
-## Screenshots
-
-_Add screenshots of the tray menu and history window here._
-
 ## Requirements
 
 - Windows 10 or 11, x64.
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
-  — only needed for the runtime-required release. The self-contained
-  release needs nothing preinstalled.
+- .NET 8 Desktop Runtime — only needed for the runtime-required release.
+  The self-contained release needs nothing preinstalled.
 
 ## Installation
 
-1. Download the latest `SinuxBoardSetup-x64.exe` from
-   [Releases](../../releases).
-2. Run the installer and follow the prompts.
-3. SinuxBoard starts automatically and appears in the system tray
-   (you may need to expand the tray's hidden-icons area the first time).
+Download the appropriate release from the GitHub Releases page:
+
+- **Runtime Required** — smaller download; requires the .NET 8 Desktop Runtime.
+- **Self-Contained** — larger download; includes the required .NET runtime.
+
+Extract or install the downloaded release according to the release package
+provided, then run `SinuxBoard.exe`.
+
+SinuxBoard runs in the system tray. You may need to expand the tray's
+hidden-icons area the first time.
 
 ## How It Works
 
@@ -42,14 +42,12 @@ clipboard change notifications from Windows. There is no visible window and
 no polling timer. When the clipboard changes and contains text:
 
 1. SinuxBoard reads the text.
-2. If it's different from the most recently stored entry, it's saved to
-   SQLite.
-3. The tray icon and History window always reflect the latest state on
-   demand.
+2. If it's different from the most recently stored entry, it's saved to SQLite.
+3. The tray icon and History window reflect the latest state on demand.
 
-When SinuxBoard starts (including after a Windows reboot), it reads the most
+When SinuxBoard starts, including after a Windows reboot, it reads the most
 recent entry from the database and writes it back to the clipboard, so your
-last copied text is always ready to paste.
+last copied text is ready to paste.
 
 ## Database Location
 
@@ -57,14 +55,13 @@ last copied text is always ready to paste.
 %AppData%\SinuxBoard\sinuxboard.db
 ```
 
-The database is created automatically on first run. It is never stored next
-to the executable and is left untouched by uninstalls/updates unless you
-remove it yourself.
+The database is created automatically on first run. It is stored separately
+from the application files.
 
 ## Import / Export
 
 - **Export History** writes the full history to a JSON file you choose, in
-  the form:
+  the following format:
 
   ```json
   [
@@ -78,13 +75,13 @@ remove it yourself.
   ```
 
 - **Import History** reads a JSON file in the same format and merges it into
-  your existing database (invalid files are rejected without crashing the
-  app, and identical consecutive entries are skipped).
+  your existing database. Invalid files are rejected without crashing the
+  app, and identical consecutive entries are skipped.
 
 ## Startup Behavior
 
-Use the tray menu's **Start with Windows** option to toggle automatic
-startup. This writes/removes a single value under:
+Use the tray menu's **Start with Windows** option to toggle automatic startup.
+This writes or removes a single value under:
 
 ```text
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
@@ -95,7 +92,7 @@ are touched.
 
 ## Build Instructions
 
-Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+Requires the .NET 8 SDK.
 
 ```bash
 # Restore dependencies
@@ -110,45 +107,37 @@ dotnet build -c Release
 
 ## Publish Instructions
 
-```bash
-# Runtime-required (smaller, needs .NET 8 Desktop Runtime installed)
-dotnet publish SinuxBoard/SinuxBoard.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64-framework-dependent
+### Runtime Required
 
-# Self-contained (larger, runs with no .NET installation required)
-dotnet publish SinuxBoard/SinuxBoard.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
-```
-
-## Packaging (Inno Setup)
-
-An Inno Setup script is provided at `installer/SinuxBoard.iss`. It expects a
-self-contained publish output at `publish/win-x64` (adjust `PublishDir` in
-the script if you use a different path), and produces
-`installer/Output/SinuxBoardSetup-x64.exe`.
+Smaller release. The target computer must have the .NET 8 Desktop Runtime
+installed.
 
 ```bash
-iscc installer/SinuxBoard.iss
+dotnet publish SinuxBoard/SinuxBoard.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64-runtime-required
 ```
 
-The installer installs the application under the user's local install
-directory, creates an uninstaller and optional shortcuts, and can register
-SinuxBoard to start with Windows. The SQLite database always remains under
-`%AppData%\SinuxBoard`, independent of the install location.
+### Self-Contained
+
+Larger release. No .NET installation is required on the target computer.
+
+```bash
+dotnet publish SinuxBoard/SinuxBoard.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64-self-contained
+```
 
 ## Repository Contents
 
-Committed to source control:
+The repository contains the source code, project configuration, application
+icon, documentation, and license.
+
+Never commit build output or local application data, including:
 
 ```text
-README.md
-LICENSE
-.gitignore
-SinuxBoard.sln
-SinuxBoard/            (source files, csproj, Assets/SinuxBoard.ico)
-installer/SinuxBoard.iss
+bin/
+obj/
+.vs/
+publish/
+*.db
 ```
-
-Never committed: `bin/`, `obj/`, `.vs/`, publish output, or any SQLite
-database files.
 
 ## License
 
