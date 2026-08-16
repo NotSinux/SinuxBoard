@@ -1,0 +1,47 @@
+<Window x:Class="SinuxBoard.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SinuxBoard History"
+        Width="640" Height="480"
+        MinWidth="420" MinHeight="300"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Double-click an item to restore it to the clipboard."
+                   Margin="0,0,0,8"
+                   Foreground="#555555"/>
+
+        <ListView x:Name="HistoryListView"
+                  Grid.Row="1"
+                  MouseDoubleClick="HistoryListView_MouseDoubleClick">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Content" Width="440">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Preview}"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding Content}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Timestamp" Width="150"
+                                     DisplayMemberBinding="{Binding LocalTimestamp}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,8,0,0">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#777777"/>
+            <Button Content="Refresh" Width="80" Click="RefreshButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
